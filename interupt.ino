@@ -1,5 +1,12 @@
 void videoBIOSinterupt(){
   switch(regs.byteregs[regah]){
+  case 0x9:
+  /*09H писать символ/атрибут в текущей позиции курсора
+     вход:  BH = номер видео страницы
+     AL = записываемый символ
+     CX = счетчик (сколько экземпляров символа записать)
+     BL = видео атрибут (текст) или цвет (графика)
+      (графические режимы: +80H означает XOR с символом на экране)*/
   case 0xA:
     /*0aH писать символ в текущей позиции курсора
       вход:  BH = номер видео страницы
@@ -42,6 +49,7 @@ void keyBIOSinterupt(){
 }
 
 void DOSinterupt(){
+  uint16_t adrs;
   switch(regs.byteregs[regah]){
     case 0x01:
       /*Вход AH = 01H
@@ -53,6 +61,9 @@ void DOSinterupt(){
       regs.byteregs[regal] = (uint8_t) Serial.read();
       Serial.print((char)regs.byteregs[regal]);
       break; 
+    case 0x02:
+      Serial.print((char)regs.byteregs[regdl]);
+      break;
     case 0x09:
       // AH=09h - вывод строки из DS:DX.
       for(uint8_t i = 0; i < 255; i++){
@@ -64,6 +75,31 @@ void DOSinterupt(){
           return;
         }
       }
+      break;
+    case 0x0a:
+      /*DOS Fn 0aH: ввод строки в буфеp
+      Вход AH = 0aH
+      DS:DX = адрес входного буфера (смотри ниже)
+      Выход нет = буфер содержит ввод, заканчивающийся символом CR (ASCII 0dH)*/
+      adrs = (segregs[regds] << 4) + regs.wordregs[regdx];
+      uint8_t length=0;
+      char ch;
+      ch=Serial.read();
+      while(true){
+        while(Serial.available() == 0){
+          
+        }
+        ch=Serial.read();
+        Serial.print(ch);
+        if(ch=='\n' || ch=='\r')
+          break;
+        write86(adrs+length+2,(uint8_t) ch);
+        length++;
+        if(length>read86(adrs) || length>255)
+          break;
+      }
+      write86(adrs+1,length);//записываем действительную длину данных
+      write86(adrs+length+3,'$');
       break;
 #ifdef DEBUG
     default:
