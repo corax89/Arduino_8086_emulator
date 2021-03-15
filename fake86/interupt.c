@@ -1,3 +1,7 @@
+// This line added by @raspiduino
+#include "cpu8086.h"
+#include "cpu8086.c"
+
 void videoBIOSinterupt(){
   switch(regs.byteregs[regah]){
   case 0x9:
