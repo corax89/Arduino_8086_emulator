@@ -134,17 +134,7 @@ dec ch
 dec bx
 jmp  loop_left 
 
-
 ;буффер дл¤ массива ячеек
 array db ?, 32 dup (0), 0, 0         
 ;буффер для строки
 buffer db 255,?, 32 dup (0), 0, 0
-
-
-
-
-
-
-
-
-
