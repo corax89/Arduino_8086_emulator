@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 #include <Arduino.h>
+#include "outputserial.h"
 
 void decodeflagsword( word x);
 void modregrm();
